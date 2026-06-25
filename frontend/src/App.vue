@@ -15,17 +15,16 @@
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-left">
           📋 Tarjeta PEPS
         </button>
-        <p class="text-purple-400 text-xs uppercase tracking-widest mt-3 mb-1 px-2">Próximamente</p>
-        <button class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-left text-purple-500 cursor-not-allowed">
-          📅 Resumen diario
-        </button>
-        <button class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-left text-purple-500 cursor-not-allowed">
-          📊 Resumen mensual
+        <button @click="vista = 'resumenes'"
+          :class="vista === 'resumenes' ? 'bg-purple-700/30 text-white' : 'text-purple-300'"
+          class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-left">
+          📊 Resúmenes
         </button>
       </nav>
     </aside>
     <main class="flex-1 bg-gray-50">
       <TarjetaPEPS v-if="vista === 'peps'" />
+      <Resumenes v-if="vista === 'resumenes'" />
     </main>
   </div>
 </template>
@@ -33,6 +32,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TarjetaPEPS from './views/TarjetaPEPS.vue';
+import Resumenes from './views/Resumenes.vue';
 
 const vista = ref('peps');
 </script>

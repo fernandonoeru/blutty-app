@@ -14,4 +14,7 @@ export const getMovimientos = (presentacionId: number) =>
 export const createMovimiento = (data: any) => api.post('/movimientos', data);
 export const deleteMovimiento = (id: number) => api.delete(`/movimientos/${id}`);
 
+export const getResumen = (presentacionId: number, tipo: string, fecha: string) =>
+  api.get(`/movimientos/${presentacionId}/resumen?tipo=${tipo}&fecha=${fecha}`);
+
 export default api;

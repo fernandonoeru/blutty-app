@@ -63,3 +63,40 @@ export const deleteMovimiento = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error al eliminar movimiento' });
   }
 };
+
+
+export const getResumen = async (req: Request, res: Response) => {
+  try {
+    const { presentacionId } = req.params;
+    const { tipo, fecha } = req.query;
+
+    let fechaInicio: string;
+    let fechaFin: string;
+    const base = new Date(fecha as string || new Date());
+
+    if (tipo === 'diario') {
+      fechaInicio = base.toISOString().slice(0, 10);
+      fechaFin = fechaInicio;
+    } else if (tipo === 'semanal') {
+      const dia = base.getDay();
+      const sabadoPasado = new Date(base);
+      sabadoPasado.setDate(base.getDate() - ((dia + 1) % 7));
+      const sabadoSiguiente = new Date(sabadoPasado);
+      sabadoSiguiente.setDate(sabadoPasado.getDate() + 6);
+      fechaInicio = sabadoPasado.toISOString().slice(0, 10);
+      fechaFin = sabadoSiguiente.toISOString().slice(0, 10);
+    } else {
+      fechaInicio = `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-01`;
+      const ultimoDia = new Date(base.getFullYear(), base.getMonth() + 1, 0);
+      fechaFin = ultimoDia.toISOString().slice(0, 10);
+    }
+
+    const [rows] = await pool.query(
+      'SELECT * FROM movimientos WHERE presentacion_id = ? AND fecha BETWEEN ? AND ? ORDER BY fecha ASC, id ASC',
+      [presentacionId, fechaInicio, fechaFin]
+    );
+    res.json({ rows, fechaInicio, fechaFin });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener resumen' });
+  }
+};
