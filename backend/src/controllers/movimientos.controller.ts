@@ -78,14 +78,14 @@ export const getResumen = async (req: Request, res: Response) => {
       fechaInicio = base.toISOString().slice(0, 10);
       fechaFin = fechaInicio;
     } else if (tipo === 'semanal') {
-      const dia = base.getDay();
-      const sabadoPasado = new Date(base);
-      sabadoPasado.setDate(base.getDate() - ((dia + 1) % 7));
-      const sabadoSiguiente = new Date(sabadoPasado);
-      sabadoSiguiente.setDate(sabadoPasado.getDate() + 6);
-      fechaInicio = sabadoPasado.toISOString().slice(0, 10);
-      fechaFin = sabadoSiguiente.toISOString().slice(0, 10);
-    } else {
+      const dia = base.getDay(); // 0=domingo, 6=sabado
+      const domingo = new Date(base);
+      domingo.setDate(base.getDate() - dia);
+      const sabado = new Date(domingo);
+      sabado.setDate(domingo.getDate() + 6);
+      fechaInicio = domingo.toISOString().slice(0, 10);
+      fechaFin = sabado.toISOString().slice(0, 10);
+    }else {
       fechaInicio = `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-01`;
       const ultimoDia = new Date(base.getFullYear(), base.getMonth() + 1, 0);
       fechaFin = ultimoDia.toISOString().slice(0, 10);
