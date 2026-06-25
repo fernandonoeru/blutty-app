@@ -15,6 +15,7 @@
           <th class="text-center text-gray-500 font-normal px-2 py-2">Debe</th>
           <th class="text-center text-gray-500 font-normal px-2 py-2">Haber</th>
           <th class="text-center text-gray-500 font-normal px-2 py-2">Saldo</th>
+          <th class="text-center text-gray-500 font-normal px-2 py-2">Registrado</th>
           <th class="px-2 py-2"></th>
         </tr>
       </thead>
@@ -34,6 +35,7 @@
           <td class="px-2 py-2 text-center">{{ m.debe ? '$' + m.debe : '—' }}</td>
           <td class="px-2 py-2 text-center">{{ m.haber ? '$' + m.haber : '—' }}</td>
           <td class="px-2 py-2 text-center">${{ m.saldo }}</td>
+          <td class="px-2 py-2 text-center text-gray-400 text-xs">{{ formatHora(m.created_at) }}</td>
           <td class="px-2 py-2 text-center">
             <button @click="$emit('eliminar', m.id)" class="text-red-400 hover:bg-red-50 rounded p-1">
               🗑
@@ -50,6 +52,7 @@
           <td class="px-2 py-2 text-center">${{ totalHaber }}</td>
           <td class="px-2 py-2 text-center">${{ saldoFinal }}</td>
           <td></td>
+          <td></td>
         </tr>
       </tbody>
     </table>
@@ -63,6 +66,17 @@ const props = defineProps<{ movimientos: any[] }>();
 defineEmits(['eliminar']);
 
 const formatFecha = (fecha: string) => fecha?.slice(0, 10);
+
+const formatHora = (fecha: string) => {
+  if (!fecha) return '—';
+  return new Date(fecha).toLocaleString('es-MX', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
 const totalEntradas = computed(() =>
   props.movimientos.filter(m => m.tipo === 'entrada').reduce((a, m) => a + m.cantidad, 0)
