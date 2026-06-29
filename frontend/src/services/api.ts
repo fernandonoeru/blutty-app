@@ -17,4 +17,8 @@ export const deleteMovimiento = (id: number) => api.delete(`/movimientos/${id}`)
 export const getResumen = (presentacionId: number, tipo: string, fecha: string) =>
   api.get(`/movimientos/${presentacionId}/resumen?tipo=${tipo}&fecha=${fecha}`);
 
+export const getVendedores = () => api.get('/vendedores');
+export const createVendedor = (data: { nombre: string }) => api.post('/vendedores', data);
+export const deleteVendedor = (id: number) => api.delete(`/vendedores/${id}`);
+
 export default api;

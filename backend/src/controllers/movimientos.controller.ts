@@ -16,7 +16,7 @@ export const getMovimientos = async (req: Request, res: Response) => {
 
 export const createMovimiento = async (req: Request, res: Response) => {
   try {
-    const { presentacion_id, fecha, tipo, cantidad, precio_unitario } = req.body;
+    const { presentacion_id, fecha, tipo, cantidad, precio_unitario, vendedor_id, vendedor_nombre } = req.body;
 
     const [ultimos]: any = await pool.query(
       'SELECT saldo, existencia FROM movimientos WHERE presentacion_id = ? ORDER BY fecha DESC, id DESC LIMIT 1',
@@ -43,9 +43,9 @@ export const createMovimiento = async (req: Request, res: Response) => {
 
     const [result]: any = await pool.query(
       `INSERT INTO movimientos 
-       (presentacion_id, fecha, tipo, cantidad, precio_unitario, existencia, debe, haber, saldo) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [presentacion_id, fecha, tipo, cantidad, precio_unitario, existencia, debe, haber, saldo]
+       (presentacion_id, fecha, tipo, cantidad, precio_unitario, existencia, debe, haber, saldo, vendedor_id, vendedor_nombre) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [presentacion_id, fecha, tipo, cantidad, precio_unitario, existencia, debe, haber, saldo, vendedor_id || null, vendedor_nombre || null]
     );
 
     res.json({ id: result.insertId, existencia, debe, haber, saldo });

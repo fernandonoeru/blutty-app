@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import presentacionesRoutes from './routes/presentaciones';
 import movimientosRoutes from './routes/movimientos';
+import vendedoresRoutes from './routes/vendedores';
+
 
 dotenv.config();
 
@@ -14,6 +16,8 @@ app.use(express.json());
 
 app.use('/api/presentaciones', presentacionesRoutes);
 app.use('/api/movimientos', movimientosRoutes);
+app.use('/api/vendedores', vendedoresRoutes);
+
 
 app.get('/', (req, res) => {
   res.json({ message: 'Blutty API funcionando ✅' });

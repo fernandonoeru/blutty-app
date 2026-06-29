@@ -16,6 +16,7 @@
           <th class="text-center text-gray-500 font-normal px-2 py-2">Haber</th>
           <th class="text-center text-gray-500 font-normal px-2 py-2">Saldo</th>
           <th class="text-center text-gray-500 font-normal px-2 py-2">Registrado</th>
+          <th class="text-center text-gray-500 font-normal px-2 py-2">Vendedor</th>
           <th class="px-2 py-2"></th>
         </tr>
       </thead>
@@ -36,6 +37,7 @@
           <td class="px-2 py-2 text-center">{{ m.haber ? '$' + m.haber : '—' }}</td>
           <td class="px-2 py-2 text-center">${{ m.saldo }}</td>
           <td class="px-2 py-2 text-center text-gray-400 text-xs">{{ formatHora(m.created_at) }}</td>
+          <td class="px-2 py-2 text-center text-gray-600 text-xs">{{ m.vendedor_nombre || '—' }}</td>
           <td class="px-2 py-2 text-center">
             <button @click="$emit('eliminar', m.id)" class="text-red-400 hover:bg-red-50 rounded p-1">
               🗑
@@ -51,6 +53,7 @@
           <td class="px-2 py-2 text-center">${{ totalDebe }}</td>
           <td class="px-2 py-2 text-center">${{ totalHaber }}</td>
           <td class="px-2 py-2 text-center">${{ saldoFinal }}</td>
+          <td></td>
           <td></td>
           <td></td>
         </tr>
