@@ -37,15 +37,15 @@
         </div>
         <div class="grid grid-cols-3 gap-2 text-center">
           <div class="bg-white border border-purple-100 rounded-lg p-2">
-            <p class="text-xs text-green-400">Entradas</p>
+            <p class="text-xs bold text-green-400">Entradas</p>
             <p class="font-medium text-green-700">{{ v.entradas }}</p>
           </div>
           <div class="bg-white border border-gray-100 rounded-lg p-2">
-            <p class="text-xs text-red-400">Salidas</p>
+            <p class="text-xs bold text-red-400">Salidas</p>
             <p class="font-medium text-red-700">{{ v.salidas }}</p>
           </div>
           <div class="bg-white border border-gray-100 rounded-lg p-2">
-            <p class="text-xs text-gray-400">Diferencia</p>
+            <p class="text-xs bold text-gray-400">Diferencia</p>
             <p :class="Number(v.diferencia) === 0 ? 'text-green-600' : 'text-red-500'" class="font-medium">{{ v.diferencia }}</p>
           </div>
         </div>
