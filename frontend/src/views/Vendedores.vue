@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onActivated } from 'vue';
 import { getVendedores, createVendedor, deleteVendedor } from '../services/api';
 import axios from 'axios';
 
@@ -117,4 +117,5 @@ const eliminar = async () => {
 };
 
 onMounted(cargar);
+onActivated(cargar);
 </script>
