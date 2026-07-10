@@ -48,17 +48,15 @@ export const getVendedorStats = async (req: Request, res: Response) => {
     const { id } = req.params;
     const [rows]: any = await pool.query(
       `SELECT 
-        SUM(CASE WHEN tipo = 'entrada' THEN cantidad ELSE 0 END) as entradas,
-        SUM(CASE WHEN tipo = 'salida' THEN cantidad ELSE 0 END) as salidas,
-        SUM(CASE WHEN tipo = 'entrada' THEN cantidad ELSE -cantidad END) as diferencia
+        COALESCE(SUM(CASE WHEN tipo = 'entrada' THEN cantidad ELSE 0 END), 0) as entradas,
+        COALESCE(SUM(CASE WHEN tipo = 'salida' THEN cantidad ELSE 0 END), 0) as salidas
        FROM movimientos WHERE vendedor_id = ?`,
       [id]
     );
-    res.json({
-      entradas: rows[0].entradas || 0,
-      salidas: rows[0].salidas || 0,
-      diferencia: rows[0].diferencia || 0
-    });
+    const entradas = Number(rows[0].entradas);
+    const salidas = Number(rows[0].salidas);
+    const diferencia = entradas - salidas;
+    res.json({ entradas, salidas, diferencia });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener stats' });
   }
