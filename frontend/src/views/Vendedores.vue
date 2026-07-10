@@ -50,7 +50,7 @@
           </div>
         </div>
         <div v-if="v.diferencia === 0" class="text-xs text-green-500 text-center">✓ Al día</div>
-        <div v-else class="text-xs text-red-400 text-center">⚠ Tiene diferencia pendiente</div>
+        <div v-else class="text-xs text-red-400 text-center">⚠ Pendiente</div>
       </div>
     </div>
 

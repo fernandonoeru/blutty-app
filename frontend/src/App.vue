@@ -20,7 +20,7 @@
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-left">
           📊 Resúmenes
         </button>
-        <button @click="vista = 'vendedores'"
+        <button @click="irAVendedores()"
           :class="vista === 'vendedores' ? 'bg-purple-700/30 text-white' : 'text-purple-300'"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-left">
           👥 Vendedores
@@ -30,7 +30,7 @@
     <main class="flex-1 bg-gray-50">
       <TarjetaPEPS v-if="vista === 'peps'" />
       <Resumenes v-if="vista === 'resumenes'" />
-      <Vendedores v-if="vista === 'vendedores'" />
+      <Vendedores v-if="vista === 'vendedores'" :key="vendedoresKey" />
     </main>
   </div>
 </template>
@@ -42,4 +42,10 @@ import Resumenes from './views/Resumenes.vue';
 import Vendedores from './views/Vendedores.vue';
 
 const vista = ref('peps');
+const vendedoresKey = ref(0);
+
+const irAVendedores = () => {
+  vista.value = 'vendedores';
+  vendedoresKey.value++;
+};
 </script>
