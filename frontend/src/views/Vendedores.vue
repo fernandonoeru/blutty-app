@@ -36,20 +36,20 @@
           <button @click="confirmarEliminar(v)" class="text-red-400 hover:bg-red-50 rounded p-1 text-sm">🗑</button>
         </div>
         <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="bg-purple-50 rounded-lg p-2">
-            <p class="text-xs text-purple-500">Entradas</p>
-            <p class="font-medium text-gray-800">{{ v.entradas }}</p>
+          <div class="bg-white border border-purple-100 rounded-lg p-2">
+            <p class="text-xs text-purple-400">Entradas</p>
+            <p class="font-medium text-purple-700">{{ v.entradas }}</p>
           </div>
-          <div class="bg-teal-50 rounded-lg p-2">
-            <p class="text-xs text-teal-500">Salidas</p>
-            <p class="font-medium text-gray-800">{{ v.salidas }}</p>
+          <div class="bg-white border border-gray-100 rounded-lg p-2">
+            <p class="text-xs text-gray-400">Salidas</p>
+            <p class="font-medium text-gray-700">{{ v.salidas }}</p>
           </div>
-          <div :class="v.diferencia === 0 ? 'bg-green-50' : 'bg-red-50'" class="rounded-lg p-2">
-            <p :class="v.diferencia === 0 ? 'text-green-500' : 'text-red-500'" class="text-xs">Diferencia</p>
-            <p class="font-medium text-gray-800">{{ v.diferencia }}</p>
+          <div class="bg-white border border-gray-100 rounded-lg p-2">
+            <p class="text-xs text-gray-400">Diferencia</p>
+            <p :class="Number(v.diferencia) === 0 ? 'text-green-600' : 'text-red-500'" class="font-medium">{{ v.diferencia }}</p>
           </div>
         </div>
-        <div v-if="v.diferencia === 0" class="text-xs text-green-500 text-center">✓ Al día</div>
+        <div v-if="Number(v.diferencia) === 0" class="text-xs text-green-500 text-center">✓ Al día</div>
         <div v-else class="text-xs text-red-400 text-center">⚠ Pendiente</div>
       </div>
     </div>
@@ -85,7 +85,6 @@ const vendedorAEliminar = ref<any>(null);
 
 const cargar = async () => {
   const { data } = await getVendedores();
-  // Calcular entradas, salidas y diferencia por vendedor
   vendedores.value = await Promise.all(data.map(async (v: any) => {
     const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/vendedores/${v.id}/stats`);
     return { ...v, ...res.data };
