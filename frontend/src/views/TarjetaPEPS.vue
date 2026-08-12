@@ -17,11 +17,11 @@
         <p class="text-xl font-medium text-gray-800">${{ valorInventario }}</p>
       </div>
       <div class="bg-white border border-purple-200 rounded-xl p-3">
-        <p class="text-xs text-purple-500 mb-1">Entradas del mes</p>
+        <p class="text-xs text-purple-500 mb-1">Entradas Generales</p>
         <p class="text-xl font-medium text-gray-800">${{ totalDebe }}</p>
       </div>
       <div class="bg-white border border-purple-200 rounded-xl p-3">
-        <p class="text-xs text-purple-500 mb-1">Salidas del mes</p>
+        <p class="text-xs text-purple-500 mb-1">Salidas Generales</p>
         <p class="text-xl font-medium text-gray-800">${{ totalHaber }}</p>
       </div>
     </div>
