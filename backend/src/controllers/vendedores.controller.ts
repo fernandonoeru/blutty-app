@@ -43,6 +43,16 @@ export const deleteVendedor = async (req: Request, res: Response) => {
   }
 };
 
+export const debugColumnas = async (req: Request, res: Response) => {
+  try {
+    const [rows] = await pool.query('SHOW COLUMNS FROM vendedores');
+    const [dbInfo]: any = await pool.query('SELECT DATABASE() as db, @@hostname as host, CONNECTION_ID() as conn_id');
+    res.json({ columnas: rows, info: dbInfo[0] });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message || String(error) });
+  }
+};
+
 export const updateVendedorUbicacion = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
