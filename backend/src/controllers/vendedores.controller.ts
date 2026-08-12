@@ -43,27 +43,14 @@ export const deleteVendedor = async (req: Request, res: Response) => {
   }
 };
 
-export const debugColumnas = async (req: Request, res: Response) => {
-  try {
-    const [rows] = await pool.query('SHOW COLUMNS FROM vendedores');
-    const [dbInfo]: any = await pool.query('SELECT DATABASE() as db, @@hostname as host, CONNECTION_ID() as conn_id');
-    const [total]: any = await pool.query('SELECT COUNT(*) as total FROM vendedores');
-    const [nombres]: any = await pool.query('SELECT id, nombre FROM vendedores');
-    res.json({ columnas: rows, info: dbInfo[0], totalVendedores: total[0].total, vendedores: nombres });
-  } catch (error: any) {
-    res.status(500).json({ error: error?.message || String(error) });
-  }
-};
-
 export const updateVendedorUbicacion = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { ubicacion } = req.body;
     await pool.query('UPDATE vendedores SET ubicacion = ? WHERE id = ?', [ubicacion || null, id]);
     res.json({ id: Number(id), ubicacion: ubicacion || null });
-  } catch (error: any) {
-    console.error('Error al actualizar ubicación:', error);
-    res.status(500).json({ error: 'Error al actualizar ubicación', detalle: error?.message || String(error) });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar ubicación' });
   }
 };
 
