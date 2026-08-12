@@ -20,5 +20,7 @@ export const getResumen = (presentacionId: number, tipo: string, fecha: string) 
 export const getVendedores = () => api.get('/vendedores');
 export const createVendedor = (data: { nombre: string }) => api.post('/vendedores', data);
 export const deleteVendedor = (id: number) => api.delete(`/vendedores/${id}`);
+export const updateVendedorUbicacion = (id: number, ubicacion: string) =>
+  api.patch(`/vendedores/${id}/ubicacion`, { ubicacion });
 
 export default api;

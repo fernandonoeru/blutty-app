@@ -43,6 +43,17 @@ export const deleteVendedor = async (req: Request, res: Response) => {
   }
 };
 
+export const updateVendedorUbicacion = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { ubicacion } = req.body;
+    await pool.query('UPDATE vendedores SET ubicacion = ? WHERE id = ?', [ubicacion || null, id]);
+    res.json({ id: Number(id), ubicacion: ubicacion || null });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar ubicación' });
+  }
+};
+
 export const getVendedorStats = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
