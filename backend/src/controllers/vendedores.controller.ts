@@ -49,9 +49,9 @@ export const updateVendedorUbicacion = async (req: Request, res: Response) => {
     const { ubicacion } = req.body;
     await pool.query('UPDATE vendedores SET ubicacion = ? WHERE id = ?', [ubicacion || null, id]);
     res.json({ id: Number(id), ubicacion: ubicacion || null });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al actualizar ubicación:', error);
-    res.status(500).json({ error: 'Error al actualizar ubicación' });
+    res.status(500).json({ error: 'Error al actualizar ubicación', detalle: error?.message || String(error) });
   }
 };
 
