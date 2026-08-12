@@ -47,7 +47,9 @@ export const debugColumnas = async (req: Request, res: Response) => {
   try {
     const [rows] = await pool.query('SHOW COLUMNS FROM vendedores');
     const [dbInfo]: any = await pool.query('SELECT DATABASE() as db, @@hostname as host, CONNECTION_ID() as conn_id');
-    res.json({ columnas: rows, info: dbInfo[0] });
+    const [total]: any = await pool.query('SELECT COUNT(*) as total FROM vendedores');
+    const [nombres]: any = await pool.query('SELECT id, nombre FROM vendedores');
+    res.json({ columnas: rows, info: dbInfo[0], totalVendedores: total[0].total, vendedores: nombres });
   } catch (error: any) {
     res.status(500).json({ error: error?.message || String(error) });
   }
