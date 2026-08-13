@@ -130,7 +130,7 @@ const guardarEdicion = async (id: number) => {
   await updateMovimiento(id, {
     cantidad: edicion.cantidad,
     precio_unitario: edicion.precio_unitario,
-    vendedor_id: edicion.vendedor_id || null,
+    vendedor_id: edicion.vendedor_id ? Number(edicion.vendedor_id) : null,
     vendedor_nombre: vendedor?.nombre || null,
   });
   editandoId.value = null;
