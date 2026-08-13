@@ -21,29 +21,62 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="m in movimientos" :key="m.id"
-          :class="m.tipo === 'entrada' ? 'bg-purple-50' : 'bg-teal-50'"
-          class="border-b border-gray-100">
-          <td class="px-2 py-2 text-left">{{ formatFecha(m.fecha) }}</td>
-          <td class="px-2 py-2 text-center">
-            <span v-if="m.tipo === 'entrada'" class="bg-purple-200 text-purple-900 rounded-full px-2 py-0.5">Entrada</span>
-            <span v-else class="bg-teal-200 text-teal-900 rounded-full px-2 py-0.5">Salida</span>
-          </td>
-          <td class="px-2 py-2 text-center">{{ m.tipo === 'entrada' ? m.cantidad : '—' }}</td>
-          <td class="px-2 py-2 text-center">{{ m.tipo === 'salida' ? m.cantidad : '—' }}</td>
-          <td class="px-2 py-2 text-center">{{ m.existencia }}</td>
-          <td class="px-2 py-2 text-center">${{ m.precio_unitario }}</td>
-          <td class="px-2 py-2 text-center">{{ m.debe ? '$' + m.debe : '—' }}</td>
-          <td class="px-2 py-2 text-center">{{ m.haber ? '$' + m.haber : '—' }}</td>
-          <td class="px-2 py-2 text-center">${{ m.saldo }}</td>
-          <td class="px-2 py-2 text-center text-gray-400 text-xs">{{ formatHora(m.created_at) }}</td>
-          <td class="px-2 py-2 text-center text-gray-600 text-xs">{{ m.vendedor_nombre || '—' }}</td>
-          <td class="px-2 py-2 text-center">
-            <button @click="$emit('eliminar', m.id)" class="text-red-400 hover:bg-red-50 rounded p-1">
-              🗑
-            </button>
-          </td>
-        </tr>
+        <template v-for="m in movimientos" :key="m.id">
+          <tr v-if="editandoId !== m.id"
+            :class="m.tipo === 'entrada' ? 'bg-purple-50' : 'bg-teal-50'"
+            class="border-b border-gray-100">
+            <td class="px-2 py-2 text-left">{{ formatFecha(m.fecha) }}</td>
+            <td class="px-2 py-2 text-center">
+              <span v-if="m.tipo === 'entrada'" class="bg-purple-200 text-purple-900 rounded-full px-2 py-0.5">Entrada</span>
+              <span v-else class="bg-teal-200 text-teal-900 rounded-full px-2 py-0.5">Salida</span>
+            </td>
+            <td class="px-2 py-2 text-center">{{ m.tipo === 'entrada' ? m.cantidad : '—' }}</td>
+            <td class="px-2 py-2 text-center">{{ m.tipo === 'salida' ? m.cantidad : '—' }}</td>
+            <td class="px-2 py-2 text-center">{{ m.existencia }}</td>
+            <td class="px-2 py-2 text-center">${{ m.precio_unitario }}</td>
+            <td class="px-2 py-2 text-center">{{ m.debe ? '$' + m.debe : '—' }}</td>
+            <td class="px-2 py-2 text-center">{{ m.haber ? '$' + m.haber : '—' }}</td>
+            <td class="px-2 py-2 text-center">${{ m.saldo }}</td>
+            <td class="px-2 py-2 text-center text-gray-400 text-xs">{{ formatHora(m.created_at) }}</td>
+            <td class="px-2 py-2 text-center text-gray-600 text-xs">{{ m.vendedor_nombre || '—' }}</td>
+            <td class="px-2 py-2 text-center whitespace-nowrap">
+              <button @click="iniciarEdicion(m)" class="text-purple-400 hover:bg-purple-100 rounded p-1">
+                ✏️
+              </button>
+              <button @click="$emit('eliminar', m.id)" class="text-red-400 hover:bg-red-50 rounded p-1">
+                🗑
+              </button>
+            </td>
+          </tr>
+          <tr v-else class="bg-yellow-50 border-b border-gray-100">
+            <td class="px-2 py-2 text-left">{{ formatFecha(m.fecha) }}</td>
+            <td class="px-2 py-2 text-center">
+              <span v-if="m.tipo === 'entrada'" class="bg-purple-200 text-purple-900 rounded-full px-2 py-0.5">Entrada</span>
+              <span v-else class="bg-teal-200 text-teal-900 rounded-full px-2 py-0.5">Salida</span>
+            </td>
+            <td colspan="2" class="px-2 py-2 text-center">
+              <input v-model.number="edicion.cantidad" type="number" class="border border-purple-200 rounded px-2 py-1 w-20 text-center" />
+            </td>
+            <td class="px-2 py-2 text-center text-gray-400">—</td>
+            <td class="px-2 py-2 text-center">
+              <input v-model.number="edicion.precio_unitario" type="number" class="border border-purple-200 rounded px-2 py-1 w-20 text-center" />
+            </td>
+            <td class="px-2 py-2 text-center text-gray-400">—</td>
+            <td class="px-2 py-2 text-center text-gray-400">—</td>
+            <td class="px-2 py-2 text-center text-gray-400">—</td>
+            <td class="px-2 py-2 text-center text-gray-400 text-xs">{{ formatHora(m.created_at) }}</td>
+            <td class="px-2 py-2 text-center">
+              <select v-model="edicion.vendedor_id" class="border border-purple-200 rounded px-1 py-1 text-xs">
+                <option value="">Sin vendedor</option>
+                <option v-for="v in vendedores" :key="v.id" :value="v.id">{{ v.nombre }}</option>
+              </select>
+            </td>
+            <td class="px-2 py-2 text-center whitespace-nowrap">
+              <button @click="guardarEdicion(m.id)" class="text-green-600 hover:bg-green-50 rounded p-1">✓</button>
+              <button @click="cancelarEdicion" class="text-gray-400 hover:bg-gray-100 rounded p-1">✕</button>
+            </td>
+          </tr>
+        </template>
         <tr class="bg-purple-200 font-medium">
           <td colspan="2" class="px-2 py-2 text-purple-900 text-xs">Resumen</td>
           <td class="px-2 py-2 text-center">{{ totalEntradas }}</td>
@@ -63,10 +96,46 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, reactive, ref, onMounted } from 'vue';
+import { updateMovimiento, getVendedores } from '../services/api';
 
 const props = defineProps<{ movimientos: any[] }>();
-defineEmits(['eliminar']);
+const emit = defineEmits(['eliminar', 'actualizado']);
+
+const vendedores = ref<any[]>([]);
+const editandoId = ref<number | null>(null);
+const edicion = reactive({
+  cantidad: null as number | null,
+  precio_unitario: null as number | null,
+  vendedor_id: '' as number | string,
+});
+
+const iniciarEdicion = (m: any) => {
+  editandoId.value = m.id;
+  edicion.cantidad = m.cantidad;
+  edicion.precio_unitario = Number(m.precio_unitario);
+  edicion.vendedor_id = m.vendedor_id || '';
+};
+
+const cancelarEdicion = () => {
+  editandoId.value = null;
+};
+
+const guardarEdicion = async (id: number) => {
+  if (!edicion.cantidad || !edicion.precio_unitario) {
+    alert('Cantidad y precio son obligatorios.');
+    return;
+  }
+  const vendedor = vendedores.value.find(v => v.id === Number(edicion.vendedor_id));
+  await updateMovimiento(id, {
+    cantidad: edicion.cantidad,
+    precio_unitario: edicion.precio_unitario,
+    vendedor_id: edicion.vendedor_id || null,
+    vendedor_nombre: vendedor?.nombre || null,
+  });
+  editandoId.value = null;
+  emit('actualizado');
+};
 
 const formatFecha = (fecha: string) => fecha?.slice(0, 10);
 
@@ -99,4 +168,9 @@ const totalHaber = computed(() =>
 const saldoFinal = computed(() =>
   props.movimientos.length ? Number(props.movimientos[props.movimientos.length - 1].saldo).toFixed(2) : '0.00'
 );
+
+onMounted(async () => {
+  const { data } = await getVendedores();
+  vendedores.value = data;
+});
 </script>

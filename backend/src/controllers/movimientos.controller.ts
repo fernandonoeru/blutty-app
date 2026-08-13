@@ -54,16 +54,127 @@ export const createMovimiento = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteMovimiento = async (req: Request, res: Response) => {
+export const updateMovimiento = async (req: Request, res: Response) => {
+  const connection = await pool.getConnection();
   try {
     const { id } = req.params;
-    await pool.query('DELETE FROM movimientos WHERE id = ?', [id]);
-    res.json({ message: 'Movimiento eliminado' });
+    const { cantidad, precio_unitario, vendedor_id, vendedor_nombre } = req.body;
+
+    const [existing]: any = await connection.query(
+      'SELECT presentacion_id FROM movimientos WHERE id = ?',
+      [id]
+    );
+
+    if (existing.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Movimiento no encontrado' });
+    }
+
+    const presentacionId = existing[0].presentacion_id;
+
+    await connection.beginTransaction();
+
+    await connection.query(
+      'UPDATE movimientos SET cantidad = ?, precio_unitario = ?, vendedor_id = ?, vendedor_nombre = ? WHERE id = ?',
+      [cantidad, precio_unitario, vendedor_id || null, vendedor_nombre || null, id]
+    );
+
+    const [movimientos]: any = await connection.query(
+      'SELECT * FROM movimientos WHERE presentacion_id = ? ORDER BY fecha ASC, id ASC',
+      [presentacionId]
+    );
+
+    let existenciaAcum = 0;
+    let saldoAcum = 0;
+
+    for (const mov of movimientos) {
+      let debe = null;
+      let haber = null;
+
+      if (mov.tipo === 'entrada') {
+        debe = mov.cantidad * mov.precio_unitario;
+        existenciaAcum += Number(mov.cantidad);
+        saldoAcum += debe;
+      } else {
+        haber = mov.cantidad * mov.precio_unitario;
+        existenciaAcum -= Number(mov.cantidad);
+        saldoAcum -= haber;
+      }
+
+      await connection.query(
+        'UPDATE movimientos SET existencia = ?, debe = ?, haber = ?, saldo = ? WHERE id = ?',
+        [existenciaAcum, debe, haber, saldoAcum, mov.id]
+      );
+    }
+
+    await connection.commit();
+    res.json({ message: 'Movimiento actualizado' });
   } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar movimiento' });
+    await connection.rollback();
+    res.status(500).json({ error: 'Error al actualizar movimiento' });
+  } finally {
+    connection.release();
   }
 };
 
+export const deleteMovimiento = async (req: Request, res: Response) => {
+  const connection = await pool.getConnection();
+  try {
+    const { id } = req.params;
+
+    const [existing]: any = await connection.query(
+      'SELECT presentacion_id FROM movimientos WHERE id = ?',
+      [id]
+    );
+
+    if (existing.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Movimiento no encontrado' });
+    }
+
+    const presentacionId = existing[0].presentacion_id;
+
+    await connection.beginTransaction();
+
+    await connection.query('DELETE FROM movimientos WHERE id = ?', [id]);
+
+    const [movimientos]: any = await connection.query(
+      'SELECT * FROM movimientos WHERE presentacion_id = ? ORDER BY fecha ASC, id ASC',
+      [presentacionId]
+    );
+
+    let existenciaAcum = 0;
+    let saldoAcum = 0;
+
+    for (const mov of movimientos) {
+      let debe = null;
+      let haber = null;
+
+      if (mov.tipo === 'entrada') {
+        debe = mov.cantidad * mov.precio_unitario;
+        existenciaAcum += Number(mov.cantidad);
+        saldoAcum += debe;
+      } else {
+        haber = mov.cantidad * mov.precio_unitario;
+        existenciaAcum -= Number(mov.cantidad);
+        saldoAcum -= haber;
+      }
+
+      await connection.query(
+        'UPDATE movimientos SET existencia = ?, debe = ?, haber = ?, saldo = ? WHERE id = ?',
+        [existenciaAcum, debe, haber, saldoAcum, mov.id]
+      );
+    }
+
+    await connection.commit();
+    res.json({ message: 'Movimiento eliminado' });
+  } catch (error) {
+    await connection.rollback();
+    res.status(500).json({ error: 'Error al eliminar movimiento' });
+  } finally {
+    connection.release();
+  }
+};
 
 export const getResumen = async (req: Request, res: Response) => {
   try {
@@ -78,14 +189,14 @@ export const getResumen = async (req: Request, res: Response) => {
       fechaInicio = base.toISOString().slice(0, 10);
       fechaFin = fechaInicio;
     } else if (tipo === 'semanal') {
-      const dia = base.getDay(); // 0=domingo, 6=sabado
+      const dia = base.getDay();
       const domingo = new Date(base);
       domingo.setDate(base.getDate() - dia);
       const sabado = new Date(domingo);
       sabado.setDate(domingo.getDate() + 6);
       fechaInicio = domingo.toISOString().slice(0, 10);
       fechaFin = sabado.toISOString().slice(0, 10);
-    }else {
+    } else {
       fechaInicio = `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-01`;
       const ultimoDia = new Date(base.getFullYear(), base.getMonth() + 1, 0);
       fechaFin = ultimoDia.toISOString().slice(0, 10);

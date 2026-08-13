@@ -12,6 +12,8 @@ export const deletePresentacion = (id: number) => api.delete(`/presentaciones/${
 export const getMovimientos = (presentacionId: number) =>
   api.get(`/movimientos/${presentacionId}`);
 export const createMovimiento = (data: any) => api.post('/movimientos', data);
+export const updateMovimiento = (id: number, data: { cantidad: number; precio_unitario: number; vendedor_id?: number | null; vendedor_nombre?: string | null }) =>
+  api.put(`/movimientos/${id}`, data);
 export const deleteMovimiento = (id: number) => api.delete(`/movimientos/${id}`);
 
 export const getResumen = (presentacionId: number, tipo: string, fecha: string) =>

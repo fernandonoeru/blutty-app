@@ -69,7 +69,7 @@
 
     <template v-if="presentacionActiva">
       <FormMovimiento :presentacionId="presentacionActiva.id" @movimientoCreado="cargarMovimientos" />
-      <TablaMovimientos :movimientos="movimientos" @eliminar="eliminarMovimiento" />
+      <TablaMovimientos :movimientos="movimientos" @eliminar="eliminarMovimiento" @actualizado="cargarMovimientos" />
     </template>
 
     <div v-else class="text-center text-gray-400 text-sm py-12">
