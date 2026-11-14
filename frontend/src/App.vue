@@ -1,5 +1,7 @@
 <template>
-  <div class="flex min-h-screen">
+  <Login v-if="!autenticado" @entro="autenticado = true" />
+
+  <div v-else class="flex min-h-screen">
     <aside class="w-44 bg-[#26215C] flex flex-col flex-shrink-0">
       <div class="bg-[#3C3489] flex flex-col items-center gap-2 p-4 border-b border-white/10">
         <img src="https://bluttyte.netlify.app/img/logoBlueTea.jpeg"
@@ -25,6 +27,10 @@
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-left">
           👥 Vendedores
         </button>
+        <button @click="cerrarSesion"
+          class="mt-auto flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-left text-purple-300 hover:text-white">
+          🚪 Cerrar sesión
+        </button>
       </nav>
     </aside>
     <main class="flex-1 bg-gray-50">
@@ -36,11 +42,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import TarjetaPEPS from './views/TarjetaPEPS.vue';
 import Resumenes from './views/Resumenes.vue';
 import Vendedores from './views/Vendedores.vue';
+import Login from './views/Login.vue';
+import { getToken, clearToken } from './services/api';
 
+const autenticado = ref(!!getToken());
 const vista = ref('peps');
 const vendedoresKey = ref(0);
 
@@ -48,4 +57,18 @@ const irAVendedores = () => {
   vista.value = 'vendedores';
   vendedoresKey.value++;
 };
+
+const cerrarSesion = () => {
+  clearToken();
+  vista.value = 'peps';
+  autenticado.value = false;
+};
+
+const alExpirarSesion = () => {
+  vista.value = 'peps';
+  autenticado.value = false;
+};
+
+onMounted(() => window.addEventListener('sesion-expirada', alExpirarSesion));
+onUnmounted(() => window.removeEventListener('sesion-expirada', alExpirarSesion));
 </script>
