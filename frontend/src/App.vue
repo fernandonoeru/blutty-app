@@ -2,7 +2,7 @@
   <Login v-if="!autenticado" @entro="autenticado = true" />
 
   <div v-else class="flex min-h-screen">
-    <aside class="w-44 bg-[#26215C] flex flex-col flex-shrink-0">
+    <aside class="w-44 bg-[#26215C] flex flex-col flex-shrink-0 sticky top-0 h-screen self-start overflow-y-auto">
       <div class="bg-[#3C3489] flex flex-col items-center gap-2 p-4 border-b border-white/10">
         <img src="https://bluttyte.netlify.app/img/logoBlueTea.jpeg"
           alt="Logo Blutty"
