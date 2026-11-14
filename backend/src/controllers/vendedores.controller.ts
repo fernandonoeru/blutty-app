@@ -3,7 +3,15 @@ import pool from '../db/connection';
 
 export const getVendedores = async (req: Request, res: Response) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM vendedores WHERE activo = 1 ORDER BY nombre ASC');
+    // No se usa SELECT * para no traer el PDF completo en cada listado
+    const [rows] = await pool.query(
+      `SELECT id, nombre, activo, created_at, ubicacion,
+              documento_nombre,
+              (documento_pdf IS NOT NULL) AS tiene_documento
+       FROM vendedores
+       WHERE activo = 1
+       ORDER BY nombre ASC`
+    );
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener vendedores' });
@@ -70,5 +78,70 @@ export const getVendedorStats = async (req: Request, res: Response) => {
     res.json({ entradas, salidas, diferencia });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener stats' });
+  }
+};
+
+export const uploadVendedorDocumento = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se recibió ningún archivo.' });
+    }
+
+    // Verifica que el contenido realmente sea un PDF y no solo la extensión
+    if (req.file.buffer.subarray(0, 4).toString('latin1') !== '%PDF') {
+      return res.status(400).json({ error: 'El archivo no es un PDF válido.' });
+    }
+
+    // multer entrega el nombre en latin1; se convierte para conservar acentos
+    const nombre = Buffer.from(req.file.originalname, 'latin1').toString('utf8').slice(0, 255);
+
+    const [result]: any = await pool.query(
+      'UPDATE vendedores SET documento_pdf = ?, documento_nombre = ? WHERE id = ? AND activo = 1',
+      [req.file.buffer, nombre, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Vendedor no encontrado.' });
+    }
+
+    res.json({ id: Number(id), documento_nombre: nombre, tiene_documento: 1 });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al guardar el documento' });
+  }
+};
+
+export const getVendedorDocumento = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const [rows]: any = await pool.query(
+      'SELECT documento_pdf, documento_nombre FROM vendedores WHERE id = ?',
+      [id]
+    );
+
+    if (!rows.length || !rows[0].documento_pdf) {
+      return res.status(404).json({ error: 'Este vendedor no tiene documento.' });
+    }
+
+    const nombre = rows[0].documento_nombre || 'documento.pdf';
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(nombre)}`);
+    res.send(rows[0].documento_pdf);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el documento' });
+  }
+};
+
+export const deleteVendedorDocumento = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      'UPDATE vendedores SET documento_pdf = NULL, documento_nombre = NULL WHERE id = ?',
+      [id]
+    );
+    res.json({ id: Number(id), tiene_documento: 0 });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al quitar el documento' });
   }
 };
